@@ -1,0 +1,14 @@
+{
+  "name": "ultraviolet",
+  "owner": {
+    "name": "Ultraviolet Observability",
+    "url": "https://uvobservability.com"
+  },
+  "plugins": [
+    {
+      "name": "ultraviolet",
+      "source": "./",
+      "description": "Install, connect, upgrade and troubleshoot Ultraviolet Observability, and set up automatic fixes."
+    }
+  ]
+}

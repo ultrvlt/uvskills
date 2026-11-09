@@ -1,0 +1,8 @@
+{
+  "name": "ultraviolet",
+  "version": "0.1.143",
+  "description": "Install, connect, upgrade and troubleshoot Ultraviolet Observability, and set up automatic fixes.",
+  "homepage": "https://docs.uvobservability.com",
+  "repository": "https://github.com/ultrvlt/uvskills",
+  "license": "MIT"
+}
