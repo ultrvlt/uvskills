@@ -5,7 +5,7 @@ description: Upgrade an Ultraviolet Observability core or remote site to a newer
 
 # Upgrade Ultraviolet Observability
 
-The current stable release is **0.1.143**. The portal's **Updates**
+The current stable release is **0.1.144**. The portal's **Updates**
 page (with `lifecycleManager.enabled`) shows the installed version against the
 channel, with release notes, and can run verified upgrades itself. This skill
 is for upgrading by hand with Helm, or changing values.
@@ -26,7 +26,7 @@ from the Updates page).
 ## 2. Verify the new chart
 
 ```bash
-export ULTRVLT_VERSION=0.1.143
+export ULTRVLT_VERSION=0.1.144
 curl -fsSLO https://docs.uvobservability.com/cosign.pub
 cosign verify --key cosign.pub --insecure-ignore-tlog=true ghcr.io/ultrvlt/charts/ultrvlt:$ULTRVLT_VERSION
 cosign verify --key cosign.pub --insecure-ignore-tlog=true ghcr.io/ultrvlt/charts/ultrvlt-site:$ULTRVLT_VERSION
