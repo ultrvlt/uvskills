@@ -5,7 +5,7 @@ description: Upgrade an Ultraviolet Observability core or remote site to a newer
 
 # Upgrade Ultraviolet Observability
 
-The current stable release is **0.1.144**. The portal's **Updates**
+The current stable release is **0.1.145**. The portal's **Updates**
 page (with `lifecycleManager.enabled`) shows the installed version against the
 channel, with release notes, and can run verified upgrades itself. This skill
 is for upgrading by hand with Helm, or changing values.
@@ -26,7 +26,7 @@ from the Updates page).
 ## 2. Verify the new chart
 
 ```bash
-export ULTRVLT_VERSION=0.1.144
+export ULTRVLT_VERSION=0.1.145
 curl -fsSLO https://docs.uvobservability.com/cosign.pub
 cosign verify --key cosign.pub --insecure-ignore-tlog=true ghcr.io/ultrvlt/charts/ultrvlt:$ULTRVLT_VERSION
 cosign verify --key cosign.pub --insecure-ignore-tlog=true ghcr.io/ultrvlt/charts/ultrvlt-site:$ULTRVLT_VERSION
@@ -97,8 +97,11 @@ helm upgrade ultrvlt-site oci://ghcr.io/ultrvlt/charts/ultrvlt-site --version "$
 ## 6. Check it
 
 ```bash
-kubectl -n ultrvlt exec deploy/ultrvlt-query-api -- wget -qO- localhost:8080/api/v1/ping
-kubectl -n ultrvlt exec deploy/ultrvlt-query-api -- wget -qO- localhost:8080/api/v1/license
+kubectl -n ultrvlt port-forward deploy/ultrvlt-query-api 8080:8080 >/dev/null &
+sleep 2
+curl -s localhost:8080/api/v1/ping
+curl -s localhost:8080/api/v1/license
+kill %1
 ```
 
 Then in the portal: **Sites** shows every site seen in the last minute or two,

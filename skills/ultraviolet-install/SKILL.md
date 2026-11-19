@@ -1,11 +1,11 @@
 ---
 name: ultraviolet-install
-description: Install the Ultraviolet Observability core into a Kubernetes cluster — check prerequisites, size storage, verify the signed chart, create the license and admin credentials, install, reach the portal over HTTPS, and turn on data sources. Use when someone wants to install, deploy, set up or try Ultraviolet Observability.
+description: Install the Ultraviolet Observability core into a Kubernetes cluster — check prerequisites, size storage, verify the signed chart, create the admin credential (and the license, unless they start on the free tier), install, reach the portal over HTTPS, and turn on data sources. Use when someone wants to install, deploy, set up or try Ultraviolet Observability.
 ---
 
 # Install the Ultraviolet Observability core
 
-This installs version **0.1.144** (current stable) unless the user
+This installs version **0.1.145** (current stable) unless the user
 was given another version. Reference: https://docs.uvobservability.com/install/installation/
 (and /deploy/eks/ for AWS).
 
@@ -27,9 +27,16 @@ default StorageClass, note the name to set as `clickhouse.persistence.storageCla
 
 ## 2. Ask the questions that shape the install
 
-- **Connected or offline?** Connected mode renews the license automatically
-  and sends usage metadata only (license ID, version, node counts). Offline
-  (air-gapped) means installing a new `.lic` before the current one expires.
+- **Free tier or a license?** With no license the core runs the free tier: up
+  to 50 nodes and 24 hours of data, 3 days once they register an email from the
+  portal. It needs outbound HTTPS to `desk.uvobservability.com` for an hourly
+  usage report (node counts, never telemetry). SSO and roles, more sites,
+  air-gapped installs and automatic fixes need a license. Starting free and
+  adding a license later keeps the data.
+- **With a license: connected or offline?** Connected mode renews the license
+  automatically and sends usage metadata only (license ID, version, node
+  counts). Offline (air-gapped) means installing a new `.lic` before the current
+  one expires.
 - **Can the cluster pull from `ghcr.io/ultrvlt`?** If not, see
   [Air-gapped](#air-gapped).
 - **How will people reach the portal?** An ingress with TLS (required for
@@ -59,7 +66,7 @@ should talk to Ultraviolet. Details: https://docs.uvobservability.com/install/si
 ## 4. Verify the chart
 
 ```bash
-export ULTRVLT_VERSION=0.1.144
+export ULTRVLT_VERSION=0.1.145
 curl -fsSLO https://docs.uvobservability.com/cosign.pub
 cosign verify --key cosign.pub --insecure-ignore-tlog=true \
   ghcr.io/ultrvlt/charts/ultrvlt:$ULTRVLT_VERSION
@@ -68,9 +75,12 @@ cosign verify --key cosign.pub --insecure-ignore-tlog=true \
 Use cosign v2. `--insecure-ignore-tlog=true` is expected: signatures are kept
 in the registry so they verify offline.
 
-## 5. Create the license and call-home Secrets
+## 5. Create the license and call-home Secrets (skip on the free tier)
 
-The user received a one-time link with a `.lic` file and (for connected mode)
+On the free tier, skip to step 6 and leave `queryApi.license` and
+`queryApi.connected` out of the values file.
+
+With a license, the user received a one-time link with a `.lic` file and (for connected mode)
 a call-home token. **Don't ask for the token in the chat.** Have the user
 paste it into a hidden prompt:
 
@@ -84,8 +94,8 @@ read -rs UV_TOKEN && kubectl -n ultrvlt create secret generic ultrvlt-callhome \
   --from-literal=token="$UV_TOKEN"; unset UV_TOKEN
 ```
 
-No license yet? Install anyway: the core ingests with the portal locked until
-one is added.
+A license can be added later: create the Secrets, add `queryApi.license` (and
+`connected`) to the values file and upgrade. The data is kept.
 
 ## 6. Create the admin credential
 
@@ -112,11 +122,11 @@ clickhouse:
     size: 200Gi
     # storageClass: gp3
 queryApi:
-  license:
+  license:                      # leave out on the free tier
     existingSecret: ultrvlt-license
-  connected:                    # leave this block out for offline installs
+  connected:                    # leave out on the free tier and for offline installs
     enabled: true
-    portalUrl: https://api.ultrvlt.io
+    portalUrl: https://desk.uvobservability.com
     tokenSecret: ultrvlt-callhome
   auth:
     admin:
@@ -155,8 +165,11 @@ The schema Job runs on install and every upgrade.
 ## 9. Check it
 
 ```bash
-kubectl -n ultrvlt exec deploy/ultrvlt-query-api -- wget -qO- localhost:8080/api/v1/ping     # database reachable
-kubectl -n ultrvlt exec deploy/ultrvlt-query-api -- wget -qO- localhost:8080/api/v1/license  # license valid
+kubectl -n ultrvlt port-forward deploy/ultrvlt-query-api 8080:8080 >/dev/null &
+sleep 2
+curl -s localhost:8080/api/v1/ping       # database reachable
+curl -s localhost:8080/api/v1/license    # tier, and ui_locked false
+kill %1
 kubectl -n ultrvlt get ingress
 ```
 
@@ -207,11 +220,13 @@ helm install ultrvlt ./ultrvlt-$ULTRVLT_VERSION.tgz -n ultrvlt -f values-ultravi
   --set-string queryApi.auth.admin.passwordHash="$ADMIN_HASH"
 ```
 
-Leave connected mode off. Nothing in the core reaches the internet.
+Air-gapped installs need a license (the free tier must reach the desk). Leave
+connected mode off. Nothing in the core reaches the internet.
 
 ## When you're done
 
 Tell the user what was installed, where the values file is (commit it), and
-the next steps: sign-in (SSO), retention (**Retention** page), backups
-(`backup.enabled`), and the Updates page (`lifecycleManager.enabled`) for
-verified upgrades.
+the next steps. On the free tier, start with registering: the **License** page
+takes an email and raises 24 hours of data to 3 days. Then: single sign-on
+(with a license), retention (**Retention** page), backups (`backup.enabled`),
+and the Updates page (`lifecycleManager.enabled`) for verified upgrades.

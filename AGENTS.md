@@ -1,7 +1,7 @@
 # Ultraviolet Observability — notes for agents
 
 Use these when helping someone install or run Ultraviolet Observability. They
-describe version **0.1.144** (the current stable release). For anything
+describe version **0.1.145** (the current stable release). For anything
 not covered here, read the docs at https://docs.uvobservability.com.
 
 ## What it is
@@ -20,8 +20,12 @@ own environment and works air-gapped.
   `oci://ghcr.io/ultrvlt/charts/ultrvlt-site` chart: a connector that buffers
   to disk and forwards to the core over mutual TLS, plus that site's sensor and
   collectors.
-- The customer's license is a signed `.lic` file. **Connected mode** (optional)
-  renews it automatically and sends usage metadata only, never telemetry.
+- With no license the core runs the **free tier**: up to 50 nodes and 24 hours
+  of data (3 days once an email is registered from the portal's **License**
+  page), reporting node counts hourly to `desk.uvobservability.com`. SSO and
+  roles, more sites, air-gapped installs and automatic fixes need a paid license.
+- A paid license is a signed `.lic` file. **Connected mode** (optional) renews it
+  automatically and sends usage metadata only, never telemetry.
 
 ## Rules when you act
 
@@ -46,7 +50,10 @@ own environment and works air-gapped.
 - The portal's session cookie is `Secure`: sign-in over plain HTTP or a bare
   `kubectl port-forward` appears to work and then bounces back to the login
   page. Serve it over HTTPS.
-- The core boots without a license: it keeps ingesting, with the portal locked.
+- Without a license the core runs the free tier, which deletes data older than
+  24 hours and needs outbound HTTPS to `desk.uvobservability.com`. A license
+  that's configured but doesn't verify locks the portal instead; either way it
+  keeps ingesting.
 - `queryApi.auth.mode: local` is fail-closed: the install errors without an
   admin credential.
 - Turning on remote-site enrollment switches the ingest gateway to mutual TLS,
