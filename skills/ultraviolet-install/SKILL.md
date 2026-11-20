@@ -5,7 +5,7 @@ description: Install the Ultraviolet Observability core into a Kubernetes cluste
 
 # Install the Ultraviolet Observability core
 
-This installs version **0.1.145** (current stable) unless the user
+This installs version **0.1.146** (current stable) unless the user
 was given another version. Reference: https://docs.uvobservability.com/install/installation/
 (and /deploy/eks/ for AWS).
 
@@ -66,7 +66,7 @@ should talk to Ultraviolet. Details: https://docs.uvobservability.com/install/si
 ## 4. Verify the chart
 
 ```bash
-export ULTRVLT_VERSION=0.1.145
+export ULTRVLT_VERSION=0.1.146
 curl -fsSLO https://docs.uvobservability.com/cosign.pub
 cosign verify --key cosign.pub --insecure-ignore-tlog=true \
   ghcr.io/ultrvlt/charts/ultrvlt:$ULTRVLT_VERSION
@@ -173,9 +173,11 @@ kill %1
 kubectl -n ultrvlt get ingress
 ```
 
-The user signs in at `https://<host>` as `admin`. If sign-in bounces back to
-the login page, the portal is being served over plain HTTP: terminate TLS at
-the ingress and forward `X-Forwarded-Proto: https`.
+The user signs in at `https://<host>` as `admin`. Before the ingress is set up
+(or just to try it), `kubectl -n ultrvlt port-forward svc/ultrvlt-portal-ui
+8080:8080` and http://localhost:8080 work too. Don't serve the portal to others
+over plain HTTP: terminate TLS at the ingress, which sends
+`X-Forwarded-Proto: https`, and the session cookie is marked `Secure`.
 
 ## 10. Turn on data sources
 

@@ -1,7 +1,7 @@
 # Ultraviolet Observability — notes for agents
 
 Use these when helping someone install or run Ultraviolet Observability. They
-describe version **0.1.145** (the current stable release). For anything
+describe version **0.1.146** (the current stable release). For anything
 not covered here, read the docs at https://docs.uvobservability.com.
 
 ## What it is
