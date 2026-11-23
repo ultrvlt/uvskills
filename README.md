@@ -4,7 +4,7 @@ Skills and instructions that let your coding agent help you install and run
 [Ultraviolet Observability](https://uvobservability.com): self-hosted
 observability that runs entirely in your own Kubernetes cluster.
 
-They describe Ultraviolet **0.1.151**, the current stable release
+They describe Ultraviolet **0.1.152**, the current stable release
 (see `VERSION`). The full documentation is at
 [docs.uvobservability.com](https://docs.uvobservability.com).
 
