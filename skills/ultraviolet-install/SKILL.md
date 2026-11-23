@@ -5,7 +5,7 @@ description: Install the Ultraviolet Observability core into a Kubernetes cluste
 
 # Install the Ultraviolet Observability core
 
-This installs version **0.1.149** (current stable) unless the user
+This installs version **0.1.151** (current stable) unless the user
 was given another version. Reference: https://docs.uvobservability.com/install/installation/
 (and /deploy/eks/ for AWS).
 
@@ -66,7 +66,7 @@ should talk to Ultraviolet. Details: https://docs.uvobservability.com/install/si
 ## 4. Verify the chart
 
 ```bash
-export ULTRVLT_VERSION=0.1.149
+export ULTRVLT_VERSION=0.1.151
 curl -fsSLO https://docs.uvobservability.com/cosign.pub
 cosign verify --key cosign.pub --insecure-ignore-tlog=true \
   ghcr.io/ultrvlt/charts/ultrvlt:$ULTRVLT_VERSION
